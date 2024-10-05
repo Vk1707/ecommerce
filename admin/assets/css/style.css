@@ -1,0 +1,14 @@
+.admin-actions{
+    display: inline-block;
+    width: unset;
+    margin: 0px;
+    padding: 0px;
+}
+
+.col-form-label{
+    text-transform: capitalize;
+    font-size: 0.85rem;
+}
+.menu-header{
+    padding-bottom: 0 !important;
+}
