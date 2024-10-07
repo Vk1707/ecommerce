@@ -24,126 +24,60 @@ function generateOrderNo($db) {
 }
 
 
-if (!isset($_REQUEST['msg'])) {
-    if (isset($_POST['payment_method']) && $_POST['payment_method'] == "BankDeposit" && empty($_POST['transaction_info'])) {
-        gotopage("checkout.php");
-    } else {
-        $payment_date = date('Y-m-d H:i:s');
-        $payment_id = time();
-        $order_no = generateOrderNo($db);
-
-        $data = [
-            'cust_id' => $_SESSION['customer']['cust_id'],
-            'cust_name' => $_SESSION['customer']['cust_name'],
-            'cust_email' => $_SESSION['customer']['cust_email'],
-            'payment_date' => $payment_date,
-            'txnid' => '',
-            'paid_amount' => $_POST['amount'],
-            'card_no' => '',
-            'card_cvv' => '',
-            'card_month' => '',
-            'card_year' => '',
-            'bank_txn_info' => $_POST['transaction_info'],
-            'payment_method' => 'Bank Deposit',
-            'payment_status' => 'Pending',
-            'shipping_status' => 'Pending',
-            'payment_id' => $payment_id,
-            'order_no' => $order_no
-        ];
-
-        $db->insert("payment", $data);   
-
-        // Initialize arrays using foreach
-        $arr_p_id_cart = [];
-        $arr_p_name_cart = [];
-        $arr_p_qty_cart = [];
-        $arr_p_unit_price_cart = [];
-
-        foreach ($_SESSION['p_id_cart'] as $value) {
-            $arr_p_id_cart[] = $value;
-        }
-
-        foreach ($_SESSION['p_name_cart'] as $value) {
-            $arr_p_name_cart[] = $value;
-        }
-
-        foreach ($_SESSION['p_qty_cart'] as $value) {
-            $arr_p_qty_cart[] = $value;
-        }
-
-        foreach ($_SESSION['p_unit_price_cart'] as $value) {
-            $arr_p_unit_price_cart[] = $value;
-        }
-
-        // Fetch product details
-        $products = $db->select("SELECT * FROM product");
-        $arr_p_id = [];
-        $arr_p_qty = [];
-
-        foreach ($products as $row) {
-            $arr_p_id[] = $row['id'];
-            $arr_p_qty[] = $row['qty'];
-        }
-
-        // Prepare and insert order data
-        foreach ($arr_p_id_cart as $i => $product_id) {
-            $data = [
-                'prod_id' => $product_id,
-                'prod_name' => $arr_p_name_cart[$i],
-                'qty' => $arr_p_qty_cart[$i],
-                'unit_price' => $arr_p_unit_price_cart[$i],
-                'total_price' => $arr_p_unit_price_cart[$i],
-                'payment_id' => $payment_id,
-                'order_no' => $order_no
-            ];
-
-            $db->insert("order_details", $data);
-
-            // Update stock
-            $key = array_search($product_id, $arr_p_id);
-            if ($key !== false) {
-                $current_qty = $arr_p_qty[$key];
-                $final_quantity = $current_qty - $arr_p_qty_cart[$i];
-                $statement = $db->prepare("UPDATE product SET qty=? WHERE id=?");
-                $statement->execute([$final_quantity, $product_id]);
-            }
-        }
-
-        // Clear session cart data
-        unset($_SESSION['p_id_cart'], $_SESSION['p_qty_cart'], $_SESSION['p_unit_price_cart'], $_SESSION['p_name_cart'], $_SESSION['p_f_photo_cart']);
-
-        gotopage('payment-success.php?orderno='.$order_no);
-    }
-}
-elseif (isset($_POST['payment_method']) && $_POST['payment_method'] == "PayPal") { 
+if (isset($_POST['BankDeposit']) && empty($_POST['transaction_info'])) {
+    gotopage("checkout.php");
+} else {
     $payment_date = date('Y-m-d H:i:s');
     $payment_id = time();
     $order_no = generateOrderNo($db);
 
-    // Prepare data for payment
+    // Handle image upload
+    $target_dir = "uploads/payment_images/";
+    $payment_img = '';
+    
+    if (isset($_FILES['payment_img']) && $_FILES['payment_img']['error'] == 0) {
+        $file_name = basename($_FILES['payment_img']['name']);
+        $target_file = $target_dir . time() . '_' . $file_name; // Rename to avoid conflicts
+        
+        // Check if the directory exists, if not, create it
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        
+        // Move the uploaded file to the target directory
+        if (move_uploaded_file($_FILES['payment_img']['tmp_name'], $target_file)) {
+            $payment_img = $target_file; // Store the file path
+        } else {
+            // Handle file upload error
+            echo "Sorry, there was an error uploading your file.";
+            exit();
+        }
+    }
+
+    // Prepare data for insertion
     $data = [
         'cust_id' => $_SESSION['customer']['cust_id'],
         'cust_name' => $_SESSION['customer']['cust_name'],
         'cust_email' => $_SESSION['customer']['cust_email'],
         'payment_date' => $payment_date,
-        'txnid' => '', // No transaction ID for COD
+        'txnid' => '',
         'paid_amount' => $_POST['amount'],
         'card_no' => '',
         'card_cvv' => '',
         'card_month' => '',
         'card_year' => '',
-        'bank_txn_info' => '', // No transaction info for COD
-        'payment_method' => 'Cash on Delivery',
+        'bank_txn_info' => $_POST['transaction_info'],
+        'payment_img' => $payment_img, // Add the image path to the data array
+        'payment_method' => 'Bank Deposit',
         'payment_status' => 'Pending',
         'shipping_status' => 'Pending',
         'payment_id' => $payment_id,
         'order_no' => $order_no
     ];
 
-    // Insert payment data into the database
-    $db->insert("payment", $data);   
+    $db->insert("payment", $data);
 
-    // Initialize arrays using foreach for cart data
+    // Initialize arrays using foreach
     $arr_p_id_cart = [];
     $arr_p_name_cart = [];
     $arr_p_qty_cart = [];
@@ -182,7 +116,7 @@ elseif (isset($_POST['payment_method']) && $_POST['payment_method'] == "PayPal")
             'prod_name' => $arr_p_name_cart[$i],
             'qty' => $arr_p_qty_cart[$i],
             'unit_price' => $arr_p_unit_price_cart[$i],
-            'total_price' => $arr_p_unit_price_cart[$i], // You might want to calculate total price properly
+            'total_price' => $arr_p_unit_price_cart[$i],
             'payment_id' => $payment_id,
             'order_no' => $order_no
         ];
@@ -202,8 +136,102 @@ elseif (isset($_POST['payment_method']) && $_POST['payment_method'] == "PayPal")
     // Clear session cart data
     unset($_SESSION['p_id_cart'], $_SESSION['p_qty_cart'], $_SESSION['p_unit_price_cart'], $_SESSION['p_name_cart'], $_SESSION['p_f_photo_cart']);
 
-    // Redirect to success page
-    gotopage('payment-success.php?orderno='.$order_no);
+    gotopage('payment-success.php?orderno=' . $order_no);
 }
+
+
+// if (isset($_POST['payment_method']) && isset($_POST['COD'])) {
+//     $payment_date = date('Y-m-d H:i:s');
+//     $payment_id = time();
+//     $order_no = generateOrderNo($db);
+
+//     // Prepare data for payment
+//     $data = [
+//         'cust_id' => $_SESSION['customer']['cust_id'],
+//         'cust_name' => $_SESSION['customer']['cust_name'],
+//         'cust_email' => $_SESSION['customer']['cust_email'],
+//         'payment_date' => $payment_date,
+//         'txnid' => '', // No transaction ID for COD
+//         'paid_amount' => $_POST['final_total'],
+//         'card_no' => '',
+//         'card_cvv' => '',
+//         'card_month' => '',
+//         'card_year' => '',
+//         'bank_txn_info' => '', // No transaction info for COD
+//         'payment_method' => 'Cash on Delivery',
+//         'payment_status' => 'Pending',
+//         'shipping_status' => 'Pending',
+//         'payment_id' => $payment_id,
+//         'order_no' => $order_no
+//     ];
+
+//     $result = $db->insert("payment", $data);
+//     // Insert payment data into the database
+//     // if($db->insert("payment", $data)){
+//     //     dispMessage("payment inserted");
+//     // }   
+//     echo $result;
+//     // Initialize arrays using foreach for cart data
+//     $arr_p_id_cart = [];
+//     $arr_p_name_cart = [];
+//     $arr_p_qty_cart = [];
+//     $arr_p_unit_price_cart = [];
+
+//     foreach ($_SESSION['p_id_cart'] as $value) {
+//         $arr_p_id_cart[] = $value;
+//     }
+
+//     foreach ($_SESSION['p_name_cart'] as $value) {
+//         $arr_p_name_cart[] = $value;
+//     }
+
+//     foreach ($_SESSION['p_qty_cart'] as $value) {
+//         $arr_p_qty_cart[] = $value;
+//     }
+
+//     foreach ($_SESSION['p_unit_price_cart'] as $value) {
+//         $arr_p_unit_price_cart[] = $value;
+//     }
+
+//     // Fetch product details
+//     $products = $db->select("SELECT * FROM product");
+//     $arr_p_id = [];
+//     $arr_p_qty = [];
+
+//     foreach ($products as $row) {
+//         $arr_p_id[] = $row['id'];
+//         $arr_p_qty[] = $row['qty'];
+//     }
+
+//     // Prepare and insert order data
+//     foreach ($arr_p_id_cart as $i => $product_id) {
+//         $data = [
+//             'prod_id' => $product_id,
+//             'prod_name' => $arr_p_name_cart[$i],
+//             'qty' => $arr_p_qty_cart[$i],
+//             'unit_price' => $arr_p_unit_price_cart[$i],
+//             'total_price' => $arr_p_unit_price_cart[$i], // You might want to calculate total price properly
+//             'payment_id' => $payment_id,
+//             'order_no' => $order_no
+//         ];
+
+//         $db->insert("order_details", $data);
+
+//         // Update stock
+//         $key = array_search($product_id, $arr_p_id);
+//         if ($key !== false) {
+//             $current_qty = $arr_p_qty[$key];
+//             $final_quantity = $current_qty - $arr_p_qty_cart[$i];
+//             $statement = $db->prepare("UPDATE product SET qty=? WHERE id=?");
+//             $statement->execute([$final_quantity, $product_id]);
+//         }
+//     }
+
+//     // Clear session cart data
+//     unset($_SESSION['p_id_cart'], $_SESSION['p_qty_cart'], $_SESSION['p_unit_price_cart'], $_SESSION['p_name_cart'], $_SESSION['p_f_photo_cart']);
+
+//     // Redirect to success page
+//     // gotopage('payment-success.php?orderno='.$order_no);
+// }
 
 ?>

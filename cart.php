@@ -2,11 +2,17 @@
 session_start();
 include('./inc/dbclass.php');
 $db = new Database();
-
+if (isset($_SESSION['p_id_cart'])) {
+$shipping = 100;
+}
+else{
+    $shipping = 0;
+}
 function calculate_totals() {
     $subtotal = 0;
-    $shipping = 100; // Static shipping cost
+    $shipping=0;
     if (isset($_SESSION['p_id_cart'])) {
+        $shipping = 100; // Static shipping cost
         foreach ($_SESSION['p_id_cart'] as $key => $value) {
             $subtotal += $_SESSION['p_unit_price_cart'][$key] * $_SESSION['p_qty_cart'][$key];
         }
@@ -173,7 +179,7 @@ list($subtotal, $total) = calculate_totals();
                     </div>
                     <div class="d-flex justify-content-between">
                         <h6 class="font-weight-medium">Shipping</h6>
-                        <h6 class="font-weight-medium">₹ 100</h6>
+                        <h6 class="font-weight-medium">₹ <?= $shipping ?></h6>
                     </div>
                 </div>
                 <div class="pt-2">

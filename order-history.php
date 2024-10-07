@@ -16,11 +16,12 @@ if (!isset($_SESSION['customer']['cust_id'])) {
 $customer_id = $_SESSION['customer']['cust_id'];
 
 // Fetch orders based on the customer ID
-$sql = "SELECT od.*, p.*, .pi.url
-    FROM order_details od
-    JOIN payment p ON od.payment_id = p.payment_id
-    JOIN product_images pi ON od.prod_id = pi.id
-    WHERE p.cust_id = $customer_id";
+$sql = "SELECT od.*, p.*, MIN(pi.url) as purl 
+            FROM order_details od
+            JOIN payment p ON od.payment_id = p.payment_id
+            JOIN product_images pi ON od.prod_id = pi.product_id
+            WHERE p.cust_id = $customer_id
+            GROUP BY od.od_id";
 
 $orders = $db->select($sql);
 $count = 1;
@@ -88,6 +89,7 @@ $count = 1;
                         <th>S.No.</th>
                         <th>Image</th>
                         <th>Product Name</th>
+                        <th>Order No.</th>
                         <th>QTY</th>
                         <th>Unit Price</th>
                         <th>Payment Date</th>
@@ -102,8 +104,9 @@ $count = 1;
                     <?php foreach ($orders as $order): ?>
                         <tr>
                             <td><?= $count++ ?></td>
-                            <td style="font-size: 12px;"><img src="uploads/products/<?= $order['url']; ?>" alt="" width="50px" class="rounded"></td>
+                            <td style="font-size: 12px;"><img src="uploads/products/<?= $order['purl']; ?>" alt="" width="50px" class="rounded"></td>
                             <td style="font-size: 12px;"><?= substr($order['prod_name'],0,35) ?></td>
+                            <td>#<?= $order['order_no']; ?></td>
                             <td align="center"><?= $order['qty']; ?></td>
                             <td>₹ <?= $order['unit_price']; ?></td>
                             <td><?= $order['payment_date']; ?></td>

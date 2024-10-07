@@ -128,7 +128,9 @@ $estores = $db->select("SELECT * FROM ecommerce_store where status=1");
                             <a href="#" class="nav-link dropdown-toggle p-0 hover-border-0" data-toggle="dropdown">
                             <?= $user['cust_name'] ?> <i class="fa fa-angle-down ml-3"></i></a>
                             <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                                <a href="dashboard.php" class="dropdown-item">Dashboard</a>
                                 <a href="profile.php" class="dropdown-item">Profile</a>
+                                <a href="order-history.php" class="dropdown-item">My Orders</a>
                                 <a href="logout.php" class="dropdown-item">Logout</a>
                             </div>
                         </div>        

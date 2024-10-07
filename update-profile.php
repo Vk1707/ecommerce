@@ -37,13 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errorMessage = 'All fields are required.';
     } 
 
-    if($emailCheck = $db->select_single("SELECT * FROM user WHERE email ='$email' AND user_id != '$userid'")){
+    if($emailCheck = $db->select_single("SELECT * FROM customer WHERE cust_email ='$email' AND cust_id != '$userid'")){
         $emailExist = "Email already exists.";
     } else {
         $data = [
             'cust_name' => $name,
             'cust_email' => $email,
-            'cust_mobile' => $mobile,
+            'cust_phone' => $mobile,
             'cust_address' => $address,
             'cust_gender' => $gender,
             'cust_dob' => $dob,
@@ -55,8 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data['password'] = $password;
         }
 
-        $updateSuccess = $db->update('user', $data, 'email = :id', ['id' => trim($userEmail)]);
-
+        $updateSuccess = $db->update('customer', $data, 'cust_email = :id', ['id' => trim($userEmail)]);
         if ($updateSuccess) {
             $successMessage = 'Your profile has been updated successfully.';
             $_SESSION['user_email'] = $email;

@@ -71,7 +71,7 @@ $count =1;
                 <th>Name</th>
                 <th>Email</th>
                 <th>Payment Date</th>
-                <th>TXN Id</th>
+                <th>Payment SS</th>
                 <th>Bank Txn Info</th>
                 <th>Method</th>
                 <th>Status</th>
@@ -93,7 +93,10 @@ $count =1;
                     <?= $payment['payment_date']?>
                 </td>
                 <td style="text-align: center;">
-                    <?= $payment['txnid'] ?>
+                    <?php if(!empty($payment['payment_img'])): ?>
+                        <a href="../<?= $payment['payment_img'] ?>" target="_blank">Screenshot</a>
+                    <?php else: echo "NA" ?>
+                    <?php endif; ?>
                 </td>
                 <td>
                     <?= $payment['bank_txn_info'] ?>

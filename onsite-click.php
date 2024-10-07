@@ -12,12 +12,12 @@
         $userId = $user['cust_id'];
         if (isset($_GET['product_id'])) {
             $product_id = $_GET['product_id'];
-            $existingClick = $db->select_single("SELECT * FROM onsite_clicks WHERE prod_id = $product_id AND user_id = $userId");
+            // $existingClick = $db->select_single("SELECT * FROM onsite_clicks WHERE prod_id = $product_id AND user_id = $userId");
     
-            if (!$existingClick) {
-                $data = ['prod_id' => $product_id, 'user_id' => $userId, 'click_date' => date("Y-m-d H:i:s")];
+            // if (!$existingClick) {
+               $data = ['prod_id' => $product_id, 'user_id' => $userId, 'click_date' => date("Y-m-d H:i:s")];
                 $db->insert('onsite_clicks', $data);
-            }
+            // }
         }
     } else{
         // for Guest user
@@ -26,9 +26,9 @@
         $product_id = $_GET['product_id'];
 
         // Check for existing click for guest user based on session ID
-        $existingClick = $db->select_single("SELECT * FROM onsite_clicks WHERE prod_id = $product_id AND session_id = '$sessionId'");
+        // $existingClick = $db->select_single("SELECT * FROM onsite_clicks WHERE prod_id = $product_id AND session_id = '$sessionId'");
 
-        if(!$existingClick){
+        // if(!$existingClick){
             $data = [
                 'prod_id' => $product_id,
                 'user_id' => $userId,
@@ -37,7 +37,6 @@
             ];
             
             $db->insert('onsite_clicks', $data);
-        }
+        // }
     }
-
 ?>

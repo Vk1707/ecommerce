@@ -118,9 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['payment_id']) && isset
                     <th>#</th>
                     <th>Customer</th>
                     <th>Product Detail</th>
-                    <th>Qty</th>
                     <th>Unit Price</th>
                     <th>Total</th>
+                    <th>Payment Method</th>
                     <th>Payment Status</th>
                     <th>Order Status</th>
                     <th>Order Date</th>
@@ -144,9 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['payment_id']) && isset
                             <b>Prod Name: </b><?= $order['prod_name']; ?><br>
                             <b>QTY: </b><?= $order['qty']; ?><br><br>
                         </td>
-                        <td><?= $order['qty'] ?></td>
                         <td><?= number_format($order['unit_price'], 2) ?></td>
                         <td><?= number_format($total, 2) ?></td>
+                        <td><?= $order['payment_method'] ?></td>
                         <td>
                             <span class="rounded p-1 
                                 <?= ($order['payment_status'] == 'Pending') ? 'btn-danger' : 

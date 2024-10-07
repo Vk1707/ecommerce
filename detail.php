@@ -2,6 +2,8 @@
     include('./inc/dbclass.php');
     include('onsite-click.php');
     $db =  new Database();
+
+
     if (isset($_POST['form_add_to_cart'])) {
         $p_id = $_GET['product_id'];
 
@@ -19,7 +21,7 @@
                 alert('<?php echo $temp_msg; ?>');
             </script>
             <?php
-        else:
+                else:
             // Check if the product is already in the cart
             if (isset($_SESSION['p_id_cart'])) {
                 $arr_p_id_cart = array();

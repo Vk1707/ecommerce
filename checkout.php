@@ -6,8 +6,10 @@ if(empty($_SESSION['p_id_cart'])) {
     exit;
 }
 
-$userEmail = $_SESSION['user_email'];
+$userEmail = isset($_SESSION['user_email']);
 $user = $db->select_single("SELECT * FROM customer WHERE cust_email ='$userEmail'");
+
+$shipping = 100;
 
 
 function calculate_totals() {
@@ -110,7 +112,7 @@ include_once("./inc/shop_navbar.php");
                                 </tr>
                                 <tr>
                                     <th>Shipping</th>
-                                    <td>100</td>
+                                    <td><?= $shipping ?></td>
                                 </tr>
                             </tbody>
                             <tfoot>
@@ -121,125 +123,124 @@ include_once("./inc/shop_navbar.php");
                             </tfoot>
                         </table>
                     </div>
-
-                    <!-- <div class="table border pt-3 pb-2">
-                        <div class="d-flex justify-content-between mb-3">
-                            <h6 >Subtotal</h6>
-                            <h6><?= $subtotal ?></h6>
-                        </div>
-                        <div class="d-flex justify-content-between ">
-                            <h6 class="font-weight-medium">Shipping</h6>
-                            <h6 class="font-weight-medium">100</h6>
-                        </div>
-                    </div>
-                    <div class="pt-2">
-                        <div class="d-flex justify-content-between mt-2">
-                            <h5>Total</h5>
-                            <h5><?= $total ?></h5>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
     </div>
     <div class="container-fluid">
         <div class="row px-xl-5">
-        <div class="col-lg-6">
-                <h5 class="position-relative text-uppercase mb-3">
-                    <span class="bg-secondary pr-3">Billing Address</span>
-                </h5>
-                <div class="bg-light p-30 mb-5">
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label>Full Name</label>
-                            <input class="form-control" type="text" name="billing_name" placeholder="John" value="<?= htmlspecialchars($user['cust_b_name']); ?>" readonly>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Mobile No</label>
-                            <input class="form-control" type="text" name="billing_mobile" placeholder="+123 456 789" value="<?= htmlspecialchars($user['cust_b_phone']); ?>" readonly>
-                        </div>
-                        <div class="col-md-12 form-group">
-                            <label>Address</label>
-                            <textarea name="billing_address" class="form-control" id="billing_address" disabled><?= htmlspecialchars($user['cust_b_address']); ?></textarea>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>City</label>
-                            <input class="form-control" type="text" name="billing_city" placeholder="New York" value="<?= htmlspecialchars($user['cust_b_city']); ?>" readonly>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>State</label>
-                            <input class="form-control" type="text" name="billing_state" placeholder="New York" value="<?= htmlspecialchars($user['cust_b_state']); ?>" readonly>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Pin Code</label>
-                            <input class="form-control" type="text" name="billing_pin" placeholder="12345" value="<?= htmlspecialchars($user['cust_b_pincode']); ?>" readonly>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="d-flex align-items-center mb-3">
-                    <h5 class="position-relative text-uppercase mb-0 pr-3">
-                        <span class="bg-secondary pr-3">Shipping Address</span>
+            <?php if(isset($_SESSION['user_email'])): ?>
+                <div class="col-lg-6">
+                    <h5 class="position-relative text-uppercase mb-3">
+                        <span class="bg-secondary pr-3">Billing Address</span>
                     </h5>
-                    <div class="ml-auto">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="same_as_billing" name="same_as_billing" onclick="copyBillingInfo()">
-                            <label class="custom-control-label" for="same_as_billing">Same as Billing</label>
+                    <div class="bg-light p-30 mb-5">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Full Name</label>
+                                <input class="form-control" type="text" name="billing_name" placeholder="John" value="<?= htmlspecialchars($user['cust_b_name']); ?>" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Mobile No</label>
+                                <input class="form-control" type="text" name="billing_mobile" placeholder="+123 456 789" value="<?= htmlspecialchars($user['cust_b_phone']); ?>" readonly>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label>Address</label>
+                                <textarea name="billing_address" class="form-control" id="billing_address" disabled><?= htmlspecialchars($user['cust_b_address']); ?></textarea>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>City</label>
+                                <input class="form-control" type="text" name="billing_city" placeholder="New York" value="<?= htmlspecialchars($user['cust_b_city']); ?>" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>State</label>
+                                <input class="form-control" type="text" name="billing_state" placeholder="New York" value="<?= htmlspecialchars($user['cust_b_state']); ?>" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Pin Code</label>
+                                <input class="form-control" type="text" name="billing_pin" placeholder="12345" value="<?= htmlspecialchars($user['cust_b_pincode']); ?>" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-light p-30">
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label>Full Name</label>
-                            <input class="form-control" type="text" name="shipping_name" placeholder="John" value="<?= htmlspecialchars($user['cust_s_name']); ?>" readonly>
+                <div class="col-lg-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <h5 class="position-relative text-uppercase mb-0 pr-3">
+                            <span class="bg-secondary pr-3">Shipping Address</span>
+                        </h5>
+                        <div class="ml-auto">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="same_as_billing" name="same_as_billing" onclick="copyBillingInfo()">
+                                <label class="custom-control-label" for="same_as_billing">Same as Billing</label>
+                            </div>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label>Mobile No</label>
-                            <input class="form-control" type="text" name="shipping_mobile" placeholder="+123 456 789" value="<?= htmlspecialchars($user['cust_s_phone']); ?>" readonly>
-                        </div>
-                        <div class="col-md-12 form-group">
-                            <label>Address</label>
-                            <textarea name="shipping_address" class="form-control" id="shipping_address" disabled><?= htmlspecialchars($user['cust_s_address']); ?></textarea>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>City</label>
-                            <input class="form-control" type="text" name="shipping_city" placeholder="New York" value="<?= htmlspecialchars($user['cust_s_city']); ?>" readonly>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>State</label>
-                            <input class="form-control" type="text" name="shipping_state" placeholder="New York" value="<?= htmlspecialchars($user['cust_s_state']); ?>" readonly>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Pin Code</label>
-                            <input class="form-control" type="text" name="shipping_pin" placeholder="12345" value="<?= htmlspecialchars($user['cust_s_pincode']); ?>" readonly>
+                    </div>
+                    <div class="bg-light p-30">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Full Name</label>
+                                <input class="form-control" type="text" name="shipping_name" placeholder="John" value="<?= htmlspecialchars($user['cust_s_name']); ?>" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Mobile No</label>
+                                <input class="form-control" type="text" name="shipping_mobile" placeholder="+123 456 789" value="<?= htmlspecialchars($user['cust_s_phone']); ?>" readonly>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label>Address</label>
+                                <textarea name="shipping_address" class="form-control" id="shipping_address" disabled><?= htmlspecialchars($user['cust_s_address']); ?></textarea>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>City</label>
+                                <input class="form-control" type="text" name="shipping_city" placeholder="New York" value="<?= htmlspecialchars($user['cust_s_city']); ?>" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>State</label>
+                                <input class="form-control" type="text" name="shipping_state" placeholder="New York" value="<?= htmlspecialchars($user['cust_s_state']); ?>" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Pin Code</label>
+                                <input class="form-control" type="text" name="shipping_pin" placeholder="12345" value="<?= htmlspecialchars($user['cust_s_pincode']); ?>" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-                                
-            <?php
-                $checkout_access = 1;
-                if(
-                    ($_SESSION['customer']['cust_b_name']=='') ||
-                    ($_SESSION['customer']['cust_b_phone']=='') ||
-                    ($_SESSION['customer']['cust_b_address']=='') ||
-                    ($_SESSION['customer']['cust_b_city']=='') ||
-                    ($_SESSION['customer']['cust_b_state']=='') ||
-                    ($_SESSION['customer']['cust_b_pincode']=='') ||
-                    ($_SESSION['customer']['cust_s_name']=='') ||
-                    ($_SESSION['customer']['cust_s_phone']=='') ||
-                    ($_SESSION['customer']['cust_s_address']=='') ||
-                    ($_SESSION['customer']['cust_s_city']=='') ||
-                    ($_SESSION['customer']['cust_s_state']=='') ||
-                    ($_SESSION['customer']['cust_s_pincode']=='')
-                ) {
-                    $checkout_access = 0;
-                }
+            <?php endif; ?>
+                <?php
+                    if (isset($_SESSION['customer'])) {
+                        $customer = $_SESSION['customer'];
+                        $checkout_access = 1;
+                        
+                        if (
+                            empty($customer['cust_b_name']) ||
+                            empty($customer['cust_b_phone']) ||
+                            empty($customer['cust_b_address']) ||
+                            empty($customer['cust_b_city']) ||
+                            empty($customer['cust_b_state']) ||
+                            empty($customer['cust_b_pincode']) ||
+                            empty($customer['cust_s_name']) ||
+                            empty($customer['cust_s_phone']) ||
+                            empty($customer['cust_s_address']) ||
+                            empty($customer['cust_s_city']) ||
+                            empty($customer['cust_s_state']) ||
+                            empty($customer['cust_s_pincode'])
+                        ) {
+                            $checkout_access = 0;
+                        }
+                    } else {
+                        $checkout_access = 0;
+                    }
                 ?>
-                <?php if($checkout_access == 0): ?>
+                <?php 
+                if (!isset($_SESSION['user_email'])) {
+                        // If not logged in, redirect to login page or show an error message
+                        echo '<div class="col-md-12">';
+                        echo '<div style="color:red;font-size:22px;margin-bottom:50px;">';
+                        echo 'You need to be logged in to proceed with the checkout. Please <a href="signin.php" style="color:red;text-decoration:underline;">Sign here</a>.';
+                        echo '</div>';
+                        echo '</div>';
+                    } else {
+                
+                if($checkout_access == 0): ?>
                     <div class="col-md-12">
                         <div style="color:red;font-size:22px;margin-bottom:50px;">
                             You must have to fill up all the billing and shipping information from your dashboard panel in order to checkout the order. Please fill up the information going to <a href="cust-bill-ship.php" style="color:red;text-decoration:underline;">this link</a>.
@@ -251,14 +252,14 @@ include_once("./inc/shop_navbar.php");
                         <div class="form-group">
                             <select name="payment_method" class="form-control select" id="advFieldsStatus">
                                 <option value="">Select a payment method</option>
-                                <option value="PayPal">COD</option>
-                                <option value="Bank Deposit">Bank Deposit</option>
+                                <option value="COD">COD</option>
+                                <option value="BankDeposit">Bank Deposit</option>
                             </select>
                         </div>
-                        <form class="paypal" action="init.php" method="post" id="cod_order" target="_blank">
-                            <input type="hidden" name="final_total" value="<?php echo $total; ?>">
+                        <form action="cod.php" method="post" id="cod_order" target="_blank">
+                            <input type="hidden" name="amount" value="<?php echo $total; ?>">
                             <div class="col-md-12 form-group">
-                                <input type="submit" class="btn btn-primary" value="Place Order" name="form1">
+                                <input type="submit" class="btn btn-primary" value="Place Order" name="COD">
                             </div>
                         </form>
 
@@ -296,13 +297,14 @@ include_once("./inc/shop_navbar.php");
                             <!-- Submit Button Section -->
                             <div class="row mt-4">
                                 <div class="col-md-12">
-                                    <input type="submit" class="btn btn-block btn-primary font-weight-bold py-3" value="Place Order" name="form3">
+                                    <input type="submit" class="btn btn-block btn-primary font-weight-bold py-3" value="Place Order" name="BankDeposit">
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
                 <?php endif; ?>
+                <?php } ?>
             </div>
         </div>  
     </div> 
@@ -350,7 +352,7 @@ include_once("./inc/shop_navbar.php");
             	$('#cod_order').hide();
 				$('#stripe_form').hide();
 				$('#bank_form').hide();
-            } else if ( advFieldsStatus == 'PayPal' ) {
+            } else if ( advFieldsStatus == 'COD' ) {
                	$('#cod_order').show();
 				$('#stripe_form').hide();
 				$('#bank_form').hide();
@@ -358,7 +360,7 @@ include_once("./inc/shop_navbar.php");
                	$('#cod_order').hide();
 				$('#stripe_form').show();
 				$('#bank_form').hide();
-            } else if ( advFieldsStatus == 'Bank Deposit' ) {
+            } else if ( advFieldsStatus == 'BankDeposit' ) {
             	$('#cod_order').hide();
 				$('#stripe_form').hide();
 				$('#bank_form').show();
